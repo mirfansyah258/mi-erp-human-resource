@@ -1,0 +1,11 @@
+{
+  "name": "mi-erp-human-resource",
+  "version": "1.0.0",
+  "description": "ERP Human Resource System",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "m.irfnsyh",
+  "license": "ISC"
+}
