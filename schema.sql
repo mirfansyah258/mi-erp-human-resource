@@ -1,0 +1,16 @@
+DROP TABLE IF EXISTS hr_labor;
+CREATE TABLE hr_labor (
+  id VARCHAR(36) NOT NULL PRIMARY KEY,
+  id_card_number VARCHAR(16) NOT NULL UNIQUE,
+  firstname VARCHAR(128) NOT NULL,
+  middlename VARCHAR(128),
+  lastname VARCHAR(128),
+  birthdate DATE NOT NULL,
+  gender VARCHAR(1) NOT NULL, -- M / F
+  phone_number VARCHAR(16),
+  email VARCHAR(128),
+  profile_picture VARCHAR(64),
+  status VARCHAR(16) NOT NULL, -- PRE-EMPLOYEE, ACTIVE, INACTIVE
+  created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+  updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL
+);
