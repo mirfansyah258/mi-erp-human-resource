@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS hr_labor;
+DROP TABLE IF EXISTS labor;
 CREATE TABLE hr_labor (
   id VARCHAR(36) NOT NULL PRIMARY KEY,
   id_card_number VARCHAR(16) NOT NULL UNIQUE,
@@ -54,3 +54,42 @@ CREATE TABLE public.company
 
 DROP VIEW IF EXISTS v_company;
 CREATE VIEW v_company AS SELECT c1.*, c2.company_name AS parent_company, cc.category_name FROM company c1 LEFT JOIN company c2 ON c1.parent_company_id = c2.id JOIN company_category cc ON c1.category_id = cc.id;
+
+DROP TABLE IF EXISTS department;
+CREATE TABLE public.department
+(
+  id VARCHAR(36) NOT NULL PRIMARY KEY,
+  system_id VARCHAR(32),
+  department_name VARCHAR(128) NOT NULL UNIQUE,
+  parent_department_id VARCHAR(36),
+  company_id VARCHAR(36) NOT NULL,
+  created_at timestamp without time zone NOT NULL,
+  updated_at timestamp without time zone NOT NULL,
+  is_deleted BOOLEAN NOT NULL DEFAULT false,
+  CONSTRAINT fk_company_id
+    FOREIGN KEY(company_id)
+  REFERENCES company(id)
+);
+
+DROP VIEW IF EXISTS v_department;
+CREATE VIEW v_department AS SELECT d1.*, d2.department_name AS parent_department, c.company_name FROM department d1 LEFT JOIN department d2 ON d1.parent_department_id = d2.id JOIN company c ON d1.company_id = c.id;
+
+DROP TABLE IF EXISTS position;
+CREATE TABLE public.position
+(
+  id VARCHAR(36) NOT NULL PRIMARY KEY,
+  system_id VARCHAR(32),
+  position_name VARCHAR(128) NOT NULL UNIQUE,
+  is_head BOOLEAN NOT NULL DEFAULT false,
+  department_id VARCHAR(36) NOT NULL,
+  company_id VARCHAR(36) NOT NULL,
+  created_at timestamp without time zone NOT NULL,
+  updated_at timestamp without time zone NOT NULL,
+  is_deleted BOOLEAN NOT NULL DEFAULT false,
+  CONSTRAINT fk_department_id
+    FOREIGN KEY(department_id)
+  REFERENCES department(id),
+  CONSTRAINT fk_company_id
+    FOREIGN KEY(company_id)
+  REFERENCES company(id),
+);

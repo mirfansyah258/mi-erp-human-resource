@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize')
 const { db } = require('../config')
 
 module.exports = db.define(
-  'hr_labor',
+  'labor',
   {
     id: {
       type: DataTypes.STRING,

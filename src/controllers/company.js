@@ -128,15 +128,20 @@ module.exports = {
     const { system_id, company_name, category_id, parent_company_id } = req.body
 
     try {
-      const check1 = await isDataExist(Company.category, category_id, true)
-      if (check1 < 1) return myres(res, 404, `Data category company with id ${category_id} is not found`)
-      if (parent_company_id) {
-        const check2 = await isDataExist(Company.company, parent_company_id, true)
-        if (check2 < 1) return myres(res, 404, `Data parent company with id ${parent_company_id} is not found`)
-      }
-      if (id == parent_company_id) return myres(res, 400, `ID and Parent ID cannot have the same value.`)
+      // check if company id is exist
       const isExist = await isDataExist(Company.company, id, true)
       if (isExist) {
+        // check if category company is exist
+        const check1 = await isDataExist(Company.category, category_id, true)
+        if (check1 < 1) return myres(res, 404, `Data category company with id ${category_id} is not found`)
+        // check if parent company is exist
+        if (parent_company_id) {
+          const check2 = await isDataExist(Company.company, parent_company_id, true)
+          if (check2 < 1) return myres(res, 404, `Data parent company with id ${parent_company_id} is not found`)
+        }
+        // check if id != parent_company_id
+        if (id == parent_company_id) return myres(res, 400, `ID and Parent ID cannot have the same value.`)
+
         const data = await Company.company.update({ system_id, company_name, category_id, parent_company_id: parent_company_id || null }, { where: { id }, returning: true })
         return myres(res, 200, 'Company data changed successfully', data[1][0])
       }
