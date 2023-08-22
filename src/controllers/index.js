@@ -1,5 +1,6 @@
 module.exports = {
   labor: require('./labor'),
   company: require('./company'),
-  department: require('./department')
+  department: require('./department'),
+  position: require('./position')
 }

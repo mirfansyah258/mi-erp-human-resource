@@ -12,7 +12,8 @@ module.exports = {
         defaultValue: db.fn('uuid_generate_v4')
       },
       system_id: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        unique: true
       },
       category_name: {
         type: DataTypes.STRING,
@@ -50,7 +51,8 @@ module.exports = {
         defaultValue: db.fn('uuid_generate_v4')
       },
       system_id: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        unique: true
       },
       company_name: {
         type: DataTypes.STRING,

@@ -9,7 +9,7 @@ module.exports = {
   createCategory: async (req, res) => {
     const { system_id, category_name } = req.body
     try {
-      const data = await Company.category.create({ system_id, category_name })
+      const data = await Company.category.create({ system_id: system_id || null, category_name })
       return myres(res, 201, 'Category Company data created successfully', data)
     } catch (error) {
       console.error('error', error);
@@ -52,7 +52,7 @@ module.exports = {
     try {
       const isExist = await isDataExist(Company.category, id, true)
       if (isExist) {
-        const data = await Company.category.update({ system_id, category_name }, { where: { id }, returning: true })
+        const data = await Company.category.update({ system_id: system_id || null, category_name }, { where: { id }, returning: true })
         return myres(res, 200, 'Category Company data changed successfully', data[1][0])
       }
       return myres(res, 404, `Data category company with id ${id} is not found`)
@@ -86,7 +86,7 @@ module.exports = {
         const check2 = await isDataExist(Company.company, parent_company_id, true)
         if (check2 < 1) return myres(res, 404, `Data parent company with id ${parent_company_id} is not found`)
       }
-      const data = await Company.company.create({ system_id, company_name, category_id, parent_company_id: parent_company_id || null })
+      const data = await Company.company.create({ system_id: system_id || null, company_name, category_id, parent_company_id: parent_company_id || null })
       return myres(res, 201, 'Company data created successfully', data)
     } catch (error) {
       console.error('error', error);
@@ -142,7 +142,7 @@ module.exports = {
         // check if id != parent_company_id
         if (id == parent_company_id) return myres(res, 400, `ID and Parent ID cannot have the same value.`)
 
-        const data = await Company.company.update({ system_id, company_name, category_id, parent_company_id: parent_company_id || null }, { where: { id }, returning: true })
+        const data = await Company.company.update({ system_id: system_id || null, company_name, category_id, parent_company_id: parent_company_id || null }, { where: { id }, returning: true })
         return myres(res, 200, 'Company data changed successfully', data[1][0])
       }
       return myres(res, 404, `Data company with id ${id} is not found`)

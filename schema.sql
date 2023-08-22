@@ -26,7 +26,7 @@ DROP TABLE IF EXISTS company_category;
 CREATE TABLE public.company_category
 (
   id VARCHAR(36) NOT NULL PRIMARY KEY,
-  system_id VARCHAR(32),
+  system_id VARCHAR(32) UNIQUE,
   category_name VARCHAR(128) NOT NULL UNIQUE,
   created_at timestamp without time zone NOT NULL,
   updated_at timestamp without time zone NOT NULL,
@@ -37,7 +37,7 @@ DROP TABLE IF EXISTS company;
 CREATE TABLE public.company
 (
   id VARCHAR(36) NOT NULL PRIMARY KEY,
-  system_id VARCHAR(32),
+  system_id VARCHAR(32) UNIQUE,
   company_name VARCHAR(128) NOT NULL UNIQUE,
   category_id VARCHAR(36) NOT NULL,
   parent_company_id VARCHAR(36),
@@ -59,8 +59,8 @@ DROP TABLE IF EXISTS department;
 CREATE TABLE public.department
 (
   id VARCHAR(36) NOT NULL PRIMARY KEY,
-  system_id VARCHAR(32),
-  department_name VARCHAR(128) NOT NULL UNIQUE,
+  system_id VARCHAR(32) UNIQUE,
+  department_name VARCHAR(128) NOT NULL,
   parent_department_id VARCHAR(36),
   company_id VARCHAR(36) NOT NULL,
   created_at timestamp without time zone NOT NULL,
@@ -68,7 +68,8 @@ CREATE TABLE public.department
   is_deleted BOOLEAN NOT NULL DEFAULT false,
   CONSTRAINT fk_company_id
     FOREIGN KEY(company_id)
-  REFERENCES company(id)
+  REFERENCES company(id),
+  UNIQUE (department_name, company_id)
 );
 
 DROP VIEW IF EXISTS v_department;
@@ -78,8 +79,8 @@ DROP TABLE IF EXISTS position;
 CREATE TABLE public.position
 (
   id VARCHAR(36) NOT NULL PRIMARY KEY,
-  system_id VARCHAR(32),
-  position_name VARCHAR(128) NOT NULL UNIQUE,
+  system_id VARCHAR(32) UNIQUE,
+  position_name VARCHAR(128) NOT NULL,
   is_head BOOLEAN NOT NULL DEFAULT false,
   department_id VARCHAR(36) NOT NULL,
   company_id VARCHAR(36) NOT NULL,
@@ -92,4 +93,8 @@ CREATE TABLE public.position
   CONSTRAINT fk_company_id
     FOREIGN KEY(company_id)
   REFERENCES company(id),
+  UNIQUE (position_name, department_id, company_id)
 );
+
+DROP VIEW IF EXISTS v_position;
+CREATE VIEW v_position AS SELECT p.*, d.department_name, c.company_name FROM position p JOIN department d ON p.department_id = d.id JOIN company c ON p.company_id = c.id;

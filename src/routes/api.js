@@ -5,12 +5,14 @@ const router = express.Router();
 const laborRoutes = require('./labor');
 const companyRoutes = require('./company');
 const departmentRoutes = require('./department');
+const positionRoutes = require('./position');
 // ... other resource routes
 
 // Mount the resource-specific routes
 router.use('/labor', laborRoutes);
 router.use('/company', companyRoutes);
 router.use('/department', departmentRoutes);
+router.use('/position', positionRoutes);
 // ... other resource routes
 
 module.exports = router;

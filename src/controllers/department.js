@@ -1,7 +1,7 @@
 const { QueryTypes } = require("sequelize");
 const { db } = require("../config");
 const { myres } = require("../helpers")
-const { myPagination, myErrorHandling, isDataExist, myPaginationQuery } = require("../helpers/common")
+const { myErrorHandling, isDataExist, myPaginationQuery } = require("../helpers/common")
 const { Department, Company } = require("../models");
 
 module.exports = {
@@ -14,7 +14,7 @@ module.exports = {
         const check2 = await isDataExist(Department, parent_department_id, true)
         if (check2 < 1) return myres(res, 404, `Parent department with id ${parent_department_id} is not found`)
       }
-      const data = await Department.create({ system_id, department_name, parent_department_id: parent_department_id || null, company_id })
+      const data = await Department.create({ system_id: system_id || null, department_name, parent_department_id: parent_department_id || null, company_id })
       return myres(res, 201, 'Department data created successfully', data)
     } catch (error) {
       console.error('error', error);
@@ -70,7 +70,7 @@ module.exports = {
         // check if id != parent_department_id
         if (id == parent_department_id) return myres(res, 400, `ID and Parent ID cannot have the same value.`)
 
-        const data = await Department.update({ system_id, department_name, parent_department_id: parent_department_id || null, company_id }, { where: { id }, returning: true })
+        const data = await Department.update({ system_id: system_id || null, department_name, parent_department_id: parent_department_id || null, company_id }, { where: { id }, returning: true })
         return myres(res, 200, 'Department changed successfully', data[1][0])
       }
       return myres(res, 404, `Department with id ${id} is not found`)

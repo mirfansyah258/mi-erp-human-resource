@@ -12,7 +12,8 @@ module.exports = db.define(
     },
     id_card_number: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      unique: true
     },
     firstname: {
       type: DataTypes.STRING,
