@@ -1,15 +1,15 @@
 const fs = require('fs');
 const { db } = require("../config")
 const { myres } = require("../helpers")
-const { myPagination, myErrorHandling, myFileExt } = require("../helpers/common")
+const { myPagination, myErrorHandling, myFileExt, isDataExist } = require("../helpers/common")
 const { Labor } = require("../models");
 const moment = require('moment');
 
 module.exports = {
   create: async (req, res) => {
-    const { id_card_number, firstname, middlename, lastname, birthdate, gender, phone_number, email, status } = req.body
+    const { id_card_number, firstname, middlename, lastname, birthdate, gender, nationality, marital_status, contact_address, contact_phone, contact_email, emergency_contact_name, emergency_contact_phone, tax_id, status } = req.body
     const files = req.files
-    // console.log('req.body', req.body);
+
     const transaction = await db.transaction()
     try {
       let profile_picture = ''
@@ -18,7 +18,7 @@ module.exports = {
         profile_picture = `${moment().valueOf()}.${ext}`
       }
 
-      const data = await Labor.create({ id_card_number, firstname, middlename, lastname, birthdate, gender, phone_number, email, profile_picture, status }, { transaction })
+      const data = await Labor.create({ id_card_number, firstname, middlename, lastname, birthdate, gender, nationality, marital_status, profile_picture, contact_address, contact_phone, contact_email, emergency_contact_name, emergency_contact_phone, tax_id, status }, { transaction })
 
       if (files && files.profile_picture.size > 0) {
         const dir = `./src/assets/uploads/${data.id}/profile-picture`
@@ -46,14 +46,14 @@ module.exports = {
   },
   getAll: async (req, res) => {
     const { page = 1, perPage = 1, status } = req.query
-    const { param, order, limit, offset } = myPagination(req.query, ['id_card_number', 'firstname', 'middlename', 'lastname', 'gender', 'phone_number', 'email', 'status'])
+    const { param, order, limit, offset } = myPagination(req.query, ['id_card_number', 'firstname', 'middlename', 'lastname', 'gender', 'nationality', 'contact_address', 'contact_phone', 'contact_email', 'emergency_contact_name', 'emergency_contact_phone', 'tax_id', 'status'])
     if (!status) return myres(res, 400, 'status is required')
     try {
       // get all record based on filter
-      const data = await Labor.findAll({ where: { status, ...param }, ...order, limit, offset, raw: true })
+      const data = await Labor.findAll({ where: { status, ...param, is_deleted: false }, ...order, limit, offset, raw: true })
 
       // count all record based on filter
-      const totalCount = await Labor.count({ where: { status, ...param } })
+      const totalCount = await Labor.count({ where: { status, ...param, is_deleted: false } })
 
       // manipulate data
       for (let i = 0; i < data.length; i++) {
@@ -70,7 +70,7 @@ module.exports = {
   getById: async (req, res) => {
     const { id } = req.params
     try {
-      const data = await Labor.findOne({ where: { id }, raw: true })
+      const data = await Labor.findOne({ where: { id, is_deleted: false }, raw: true })
       if (data) {
         data.profile_picture_path = data.profile_picture ? `/uploads/${data.id}/profile-picture/${data.profile_picture}` : ''
         return myres(res, 200, null, data)
@@ -88,8 +88,6 @@ module.exports = {
     delete update_param.profile_picture
 
     let profile_picture = ''
-    console.log('req.body', req.body);
-    console.log('files', files);
     if (files && files.profile_picture.size > 0) {
       const ext = myFileExt(files.profile_picture.name)
       profile_picture = `${moment().valueOf()}.${ext}`
@@ -108,18 +106,27 @@ module.exports = {
     }
 
     try {
-      const data = await Labor.update(update_param, { where: { id }, returning: true })
-      return myres(res, 200, 'Labor data changed successfully', data[1][0])
+      const isExist = await isDataExist(Labor, id, true)
+      if (isExist) {
+        const data = await Labor.update(update_param, { where: { id }, returning: true })
+        return myres(res, 200, 'Labor data changed successfully', data[1][0])
+      }
+      return myres(res, 404, `Data labor with id ${id} is not found`)
     } catch (error) {
       console.error('error', error);
+      fs.unlinkSync(path);
       return myres(res, 400, 'error at update', error)
     }
   },
   delete: async (req, res) => {
     const { id } = req.params
     try {
-      const data = await Labor.update({ status: 'INACTIVE' }, { where: { id }, returning: true })
-      return myres(res, 200, 'Labor data changed successfully', data[1][0])
+      const isExist = await isDataExist(Labor, id, true)
+      if (isExist) {
+        const data = await Labor.update({ is_deleted: true }, { where: { id }, returning: true })
+        return myres(res, 200, 'Labor data deleted successfully', data[1][0])
+      }
+      return myres(res, 404, `Data labor with id ${id} is not found`)
     } catch (error) {
       console.error('error', error);
       return myres(res, 400, 'error at delete', error)

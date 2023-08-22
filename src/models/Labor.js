@@ -34,17 +34,37 @@ module.exports = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    phone_number: {
+    nationality: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: true,
+    marital_status: {
+      type: DataTypes.BOOLEAN
     },
     profile_picture: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    contact_address: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    contact_phone: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    contact_email: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    emergency_contact_name: {
+      type: DataTypes.STRING
+    },
+    emergency_contact_phone: {
+      type: DataTypes.STRING
+    },
+    tax_id: {
+      type: DataTypes.STRING
     },
     status: {
       type: DataTypes.STRING,
@@ -59,7 +79,11 @@ module.exports = db.define(
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: db.fn('now')
-    }
+    },
+    is_deleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
   },
   {
     freezeTableName: true,

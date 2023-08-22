@@ -1,9 +1,11 @@
+const { Op } = require("sequelize")
+
 module.exports = {
   myPagination: (q, sqInc) => {
     const { searchQuery, sort, page, perPage } = q
 
     var param = {}
-    var order = {}
+    var order = { order: [['created_at', 'desc']] }
     var limit = 10
     var offset = 0
     // search query condition
@@ -124,11 +126,18 @@ module.exports = {
             return message[1]
           })
         }
-      } else if (name == 'SequelizeUniqueConstraintError') {
+      } else if (['SequelizeUniqueConstraintError', 'SequelizeForeignKeyConstraintError'].includes(name)) {
         return original.detail
       }
     }
     return error
+  },
+  isDataExist: async (model, id, is_deleted) => {
+    if (is_deleted) {
+      return await model.count({ where: { id, is_deleted: false } })
+    } else {
+      return await model.count({ where: { id } })
+    }
   },
   myFileExt: (filename) => /(?:\.([^.]+))?$/.exec(filename)[1],
 }

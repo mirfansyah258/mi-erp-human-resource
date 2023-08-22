@@ -7,10 +7,50 @@ CREATE TABLE hr_labor (
   lastname VARCHAR(128),
   birthdate DATE NOT NULL,
   gender VARCHAR(1) NOT NULL, -- M / F
-  phone_number VARCHAR(16),
-  email VARCHAR(128),
+  nationality VARCHAR(64) NOT NULL,
+  marital_status BOOLEAN NOT NULL DEFAULT FALSE,
   profile_picture VARCHAR(64),
+  contact_address VARCHAR(128),
+  contact_phone VARCHAR(16),
+  contact_email VARCHAR(128),
+  emergency_contact_name VARCHAR(128),
+  emergency_contact_phone VARCHAR(16),
+  tax_id VARCHAR(32),
   status VARCHAR(16) NOT NULL, -- PRE-EMPLOYEE, ACTIVE, INACTIVE
   created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-  updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL
+  updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+  is_deleted BOOLEAN NOT NULL DEFAULT false
 );
+
+DROP TABLE IF EXISTS company_category;
+CREATE TABLE public.company_category
+(
+  id VARCHAR(36) NOT NULL PRIMARY KEY,
+  system_id VARCHAR(32),
+  category_name VARCHAR(128) NOT NULL UNIQUE,
+  created_at timestamp without time zone NOT NULL,
+  updated_at timestamp without time zone NOT NULL,
+  is_deleted BOOLEAN NOT NULL DEFAULT false
+);
+
+DROP TABLE IF EXISTS company;
+CREATE TABLE public.company
+(
+  id VARCHAR(36) NOT NULL PRIMARY KEY,
+  system_id VARCHAR(32),
+  company_name VARCHAR(128) NOT NULL UNIQUE,
+  category_id VARCHAR(36) NOT NULL,
+  parent_company_id VARCHAR(36),
+  created_at timestamp without time zone NOT NULL,
+  updated_at timestamp without time zone NOT NULL,
+  is_deleted BOOLEAN NOT NULL DEFAULT false,
+  CONSTRAINT fk_category_id
+    FOREIGN KEY(category_id)
+  REFERENCES company_category(id),
+  CONSTRAINT fk_parent_company_id
+    FOREIGN KEY(parent_company_id)
+  REFERENCES company(id)
+);
+
+DROP VIEW IF EXISTS v_company;
+CREATE VIEW v_company AS SELECT c1.*, c2.company_name AS parent_company, cc.category_name FROM company c1 LEFT JOIN company c2 ON c1.parent_company_id = c2.id JOIN company_category cc ON c1.category_id = cc.id;
